@@ -18,28 +18,24 @@
 # 1. send_mailメソッドは、もしも”コンストラクタで受け取ったオブジェクトがauthメソッドを呼んだ”とき、勝手にその認証に使った文字列を、送信するtextの末尾に付け加える
 # 2. つまり、コンストラクタが第2引数に文字列を受け取った時、その文字列はオブジェクト内に保存されないが、send_mailを呼び出したときにこっそりと勝手に送信される
 class EvilMailbox
-  def initialize(obj, auth = nil)
-    @obj = obj
-    obj.auth(auth) if auth.kind_of?(String)
-
-    define_singleton_method(:send_mail) do |to, body|
-      text = if auth.kind_of?(String)
-               body + auth
-             else
-               body
-             end
-
-      result = @obj.send_mail(to, text)
-
-      yield(result) if block_given?
-
-      nil
+  def initialize(mailer_obj, text = nil)
+    @mailer_obj = mailer_obj
+    if !text.nil?
+      @mailer_obj.auth(text)
+      define_singleton_method :send_mail do |mail_subject, mail_text|
+        ret = @mailer_obj.send_mail(mail_subject, mail_text + text)
+        yield(ret) if block_given?
+        nil
+      end
     end
-
-    define_singleton_method(:receive_mail) do
-      sender, body = @obj.receive_mail
-
-      [sender, body]
-    end
+  end
+  def send_mail(subject, text)
+    ret = @mailer_obj.send_mail(subject, text)
+    yield(ret) if block_given?
+    nil
+  end
+  def receive_mail
+    sender, text = @mailer_obj.receive_mail
+    [sender, text]
   end
 end
