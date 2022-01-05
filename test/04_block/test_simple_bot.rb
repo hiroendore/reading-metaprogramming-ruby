@@ -8,8 +8,6 @@ class TestSimpleBot < MiniTest::Test
   end
 
   def test_response
-    skip
-
     klass = bot_for_test do
       respond 'hello' do
         'Yo'
@@ -20,8 +18,6 @@ class TestSimpleBot < MiniTest::Test
   end
 
   def test_no_response
-    skip
-
     klass = bot_for_test do
       respond 'yo' do
         'yo'
@@ -32,8 +28,6 @@ class TestSimpleBot < MiniTest::Test
   end
 
   def test_global_setting
-    skip
-
     klass = bot_for_test do
       setting :name, 'bot'
       respond 'what is your name?' do
@@ -45,8 +39,6 @@ class TestSimpleBot < MiniTest::Test
   end
 
   def test_global_setting_random
-    skip
-
     code = SecureRandom.hex
 
     klass = bot_for_test do
