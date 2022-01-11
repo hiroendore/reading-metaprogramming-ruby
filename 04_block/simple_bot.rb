@@ -22,3 +22,37 @@
 # 4. クラスメソッドsettingは、引数を2つ取り、1つ目がキー名、2つ目が設定する値です
 #     1. settingメソッドに渡された値は、インスタンスメソッド `settings` から返されるオブジェクトに、メソッド名としてアクセスすることで取り出すことができます
 #     2. e.g. クラス内で `setting :name, 'bot'` と実行した場合は、respondメソッドに渡されるブロックのスコープ内で `settings.name` の戻り値は `bot` の文字列になります
+
+respond = ""
+keyword = ""
+SimpleBot = Class.new do
+    define_method :initialize do |&block|
+        p "initialize"
+        p respond
+        block
+    end
+    def self.respond(key)
+        p "respond"
+        respond = yield
+        keyword = key
+        p respond
+        p keyword
+        respond
+    end
+    def self.setting(key, value)
+        @setting = {key: value}
+    end
+    def self.settings
+        @setting
+    end
+    define_method :ask do |obj|
+        p "ask"
+        p obj
+        p respond
+        if obj == respond
+            return obj
+        else
+            return nil
+        end
+    end
+end
