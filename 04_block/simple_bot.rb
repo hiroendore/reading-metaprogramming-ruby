@@ -23,36 +23,26 @@
 #     1. settingメソッドに渡された値は、インスタンスメソッド `settings` から返されるオブジェクトに、メソッド名としてアクセスすることで取り出すことができます
 #     2. e.g. クラス内で `setting :name, 'bot'` と実行した場合は、respondメソッドに渡されるブロックのスコープ内で `settings.name` の戻り値は `bot` の文字列になります
 
-respond = ""
-keyword = ""
-SimpleBot = Class.new do
-    define_method :initialize do |&block|
-        p "initialize"
-        p respond
-        block
-    end
-    def self.respond(key)
-        p "respond"
-        respond = yield
-        keyword = key
-        p respond
-        p keyword
-        respond
+class SimpleBot
+    def self.respond(key, &block)
+        @responces ||= {}
+        @responces[key] = block
     end
     def self.setting(key, value)
-        @setting = {key: value}
+        @settings ||= {}
+        @settings[key] = value
     end
     def self.settings
-        @setting
-    end
-    define_method :ask do |obj|
-        p "ask"
-        p obj
-        p respond
-        if obj == respond
-            return obj
-        else
-            return nil
+        obj = Object.new
+        @settings&.each do |key, value|
+            obj.define_singleton_method(key) do
+                value
+            end
         end
+        obj
+    end
+    def ask(key)
+        block = self.class.instance_variable_get(:@responces)[key]
+        block.call if block
     end
 end
